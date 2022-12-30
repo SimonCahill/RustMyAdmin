@@ -1,11 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="RustMyAdmin.MainPage">
+             x:Class="RustMyAdmin.MainPage"
+             Title="About">
+    <VerticalStackLayout>
+        <Label 
+            Text="Welcome to RustMyAdmin! This application will help you monitor your Rust server(s)!"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center" />
 
-    <ScrollView>
-        
-    </ScrollView>
-
+        <Button Text="Click me!" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand" Clicked="OnButtonClicked" />
+    </VerticalStackLayout>
 </ContentPage>
-
