@@ -6,10 +6,11 @@
     xmlns:local="clr-namespace:RustMyAdmin"
     Shell.FlyoutBehavior="Disabled">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <TabBar >
+        <ShellContent Title="Home" ContentTemplate="{DataTemplate local:MainPage}" Route="MainPage" />
+
+        <ShellContent Title="About" ContentTemplate="{DataTemplate local:About}" Route="About" />
+    </TabBar>
 
 </Shell>
 

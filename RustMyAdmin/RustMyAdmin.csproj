@@ -15,7 +15,7 @@
 		<ApplicationTitle>RustMyAdmin</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.rustmyadmin</ApplicationId>
+		<ApplicationId>eu.simonc.rustmyadmin</ApplicationId>
 		<ApplicationIdGuid>8100862e-4674-4112-8917-5bd84dc6bee8</ApplicationIdGuid>
 
 		<!-- Versions -->
@@ -32,6 +32,14 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios|AnyCPU'">
 	  <CreatePackage>false</CreatePackage>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+	  <RunCodeAnalysis>true</RunCodeAnalysis>
+	  <WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-maccatalyst|AnyCPU'">
+	  <CreatePackage>false</CreatePackage>
+	  <MtouchDebug>true</MtouchDebug>
 	</PropertyGroup>
 	<ItemGroup>
 		<!-- App Icon -->
@@ -56,4 +64,18 @@
 	<ItemGroup>
 	  <None Remove="RconSharp" />
 	</ItemGroup>
+	<ItemGroup>
+	  <MauiXaml Update="About.xaml">
+	    <SubType></SubType>
+	  </MauiXaml>
+	</ItemGroup>
+	<ProjectExtensions>
+	  <MonoDevelop>
+	    <Properties>
+	      <Policies>
+	        <StandardHeader IncludeInNewFiles="True" Text="/**&#xA; * ${FileName}&#xA; *&#xA; * Author: ${AuthorName} (${AuthorEmail})&#xA; * File creation: ${Date}&#xA; *&#xA; * Copyright: ${CopyrightHolder} - All Rights Reserved&#xA; *&#xA; */" />
+	      </Policies>
+	    </Properties>
+	  </MonoDevelop>
+	</ProjectExtensions>
 </Project>
