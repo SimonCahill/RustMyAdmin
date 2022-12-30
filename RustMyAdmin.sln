@@ -5,7 +5,9 @@ VisualStudioVersion = 17.0.31611.283
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RustMyAdmin", "RustMyAdmin\RustMyAdmin.csproj", "{29BEF219-8E37-4303-850C-D473F149633D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RustMyAdmin.Backend", "RustMyAdmin.Backend\RustMyAdmin.Backend.csproj", "{96DDCD7A-61C3-452B-822B-B340E400211F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RustMyAdmin.Backend", "RustMyAdmin.Backend\RustMyAdmin.Backend.csproj", "{96DDCD7A-61C3-452B-822B-B340E400211F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RustMyAdmin.Backend.Tests", "RustMyAdmin.Backend.Tests\RustMyAdmin.Backend.Tests.csproj", "{050594DD-D492-4680-A7A3-6D11EFABB8A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,6 +25,10 @@ Global
 		{96DDCD7A-61C3-452B-822B-B340E400211F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96DDCD7A-61C3-452B-822B-B340E400211F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96DDCD7A-61C3-452B-822B-B340E400211F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{050594DD-D492-4680-A7A3-6D11EFABB8A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{050594DD-D492-4680-A7A3-6D11EFABB8A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{050594DD-D492-4680-A7A3-6D11EFABB8A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{050594DD-D492-4680-A7A3-6D11EFABB8A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

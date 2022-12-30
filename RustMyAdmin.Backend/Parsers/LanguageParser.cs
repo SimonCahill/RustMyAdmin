@@ -2,6 +2,8 @@
 
 namespace RustMyAdmin.Backend.Parsers {
 
+    using Exceptions;
+
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -14,7 +16,15 @@ namespace RustMyAdmin.Backend.Parsers {
     /// </summary>
     public class LanguageParser {
 
+        const string LangNameTag        = "lang_identifier";
+        const string LangDescriptionTag = "lang_description";
+
         public FileInfo? LangFile { get; private set; }
+
+        public string LangIdentity { get; private set; }
+        public string LangDescription { get; private set; }
+
+        internal static LanguageParser? FallbackInstance { get; private set; } = null;
 
         private Dictionary<string, Dictionary<string, string>> m_sections;
 
@@ -40,9 +50,10 @@ namespace RustMyAdmin.Backend.Parsers {
         /// <param name="langFileContents">The contents of the language file.</param>
         public LanguageParser(ref string langFileContents): this() {
             LangFile = null;
+            ParseLangFile(ref langFileContents);
         }
 
-        public void ParseLangFile() {
+        public bool ParseLangFile() {
             if (LangFile == null || String.IsNullOrEmpty(LangFile.FullName)) {
                 throw new InvalidOperationException("Language file path must not be null or empty!");
             } else if (!LangFile.Exists) {
@@ -50,10 +61,66 @@ namespace RustMyAdmin.Backend.Parsers {
             }
 
             var fileContents = File.ReadAllText(LangFile.FullName);
-            ParseLangFile(ref fileContents);
+            return ParseLangFile(ref fileContents);
         }
 
-        private void ParseLangFile(ref string langFileContents) {
+        /// <summary>
+        /// Attempts to get a translation string, without having to faff around with any potentially arising exceptions.
+        /// </summary>
+        /// <param name="section">The section to search in</param>
+        /// <param name="name">The name of the translation</param>
+        /// <param name="text">Out-param containing the translation text.</param>
+        /// <param name="default">The default value</param>
+        /// <returns>true if the translation was found or the default was used. False otherwise.</returns>
+        public bool TryGetTranslation(string section, string name, out string text, string? @default = null) {
+            try {
+                text = GetTranslation(section, name, @default);
+            } catch {
+                // simple catch-all because the programmer didn't want to faff around with them.
+                text = @default == null ? string.Empty : @default;
+                return string.IsNullOrEmpty(text); // still return 'true' if the default was used.
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Gets a translation string depending on the section and name of the translation.
+        /// </summary>
+        /// <param name="section">The section to search in.</param>
+        /// <param name="name">The name of the translation string.</param>
+        /// <param name="default">A default string to return if the parameter is not found.</param>
+        /// <returns>The requested translation string.</returns>
+        /// <exception cref="ArgumentException">If an invalid argument was passed.</exception>
+        /// <exception cref="LanguageParserException">If an error occurred; errors include wrong sections or translation names.</exception>
+        public string GetTranslation(string section, string name, string? @default = null) {
+            if (string.IsNullOrEmpty(section)) { throw new ArgumentException("Section variable must not be null or empty! This indicates a bug!", nameof(section)); }
+            if (string.IsNullOrEmpty(name)) { throw new ArgumentException("Name variable must not be null or empty! This indicates a bug!", nameof(name)); }
+
+            if (!m_sections.TryGetValue(section, out var sectDict)) {
+                if (@default != null) {
+                    return @default;
+                } else if (FallbackInstance != null) {
+                    return FallbackInstance.GetTranslation(section, name, @default);
+                }
+                throw new LanguageParserException(section, name, "Could not find the requested section!");
+            } else if (!sectDict.TryGetValue(name, out var translation)) {
+                if (@default != null) {
+                    return @default;
+                } else if (FallbackInstance != null) {
+                    return FallbackInstance.GetTranslation(section, name, @default);
+                }
+                throw new LanguageParserException(section, name, "Could not find the requested translation string in the selected section!");
+            } else { return translation; }
+        }
+
+        /// <summary>
+        /// Parses the contents of the language file.
+        /// </summary>
+        /// <param name="langFileContents">The actual file contents.</param>
+        /// <returns>true if the file was parsed correctly. False otherwise.</returns>
+        /// <exception cref="ArgumentException">If an invalid argument was passed.</exception>
+        private bool ParseLangFile(ref string langFileContents) {
             if (String.IsNullOrEmpty(langFileContents)) { throw new ArgumentException($"{ nameof(langFileContents) } must not be empty!"); }
 
             // Ensure the m_sections dictionary is empty
@@ -65,34 +132,52 @@ namespace RustMyAdmin.Backend.Parsers {
             var currentSection = string.Empty; // By default, we're in a global section
             m_sections.Add(currentSection, new Dictionary<string, string>());
 
-            // Converted this to lambda so we can mutate the 'line' variable as need be
-            lines.ToList().ForEach(line => {
-                // First trim line
-                line = line.Trim();
+            foreach (var line in lines) {
+                HandleSingleLineInTranslationFile(line, ref currentSection);
+            }
 
-                // Now remove any comments
-                if (string.IsNullOrEmpty(line) || line[0] == '#') { return; } // skip
+            return !string.IsNullOrEmpty(LangIdentity) && !string.IsNullOrEmpty(LangDescription) && m_sections.Count > 0;
+        }
 
-                if (IsLineSection(ref line, out currentSection)) {
-                    m_sections.Add(currentSection, new Dictionary<string, string>());
-                    return;
-                }
+        /// <summary>
+        /// Handles a single line from a translation file.
+        /// </summary>
+        /// <param name="line">The line to parse</param>
+        private void HandleSingleLineInTranslationFile(string line, ref string currentSection) {
+            // First trim line
+            line = line.Trim();
 
-                var translation = GetTranslation(ref line);
-                if (translation == null) { return; } // not a valid translation string
+            // Now remove any comments
+            if (string.IsNullOrEmpty(line) || line[0] == '#') { return; } // skip
+
+            if (IsLineSection(ref line, out currentSection)) {
+                m_sections.Add(currentSection, new Dictionary<string, string>());
+                return;
+            }
+
+            var translation = GetTranslation(ref line);
+            if (translation == null) { return; } // not a valid translation string
 
 #pragma warning disable CS8604 // Possible null reference argument.
-                if (translation?.IsMultiLine == true) {
-                    if (m_sections[currentSection].ContainsKey(translation?.TranslationName)) {
-                        m_sections[currentSection][translation?.TranslationName] = $"{ m_sections[currentSection][translation?.TranslationName] }\n{ translation?.Contents }";
-                    } else {
-                        m_sections[currentSection].Add(translation?.TranslationName, translation?.Contents);
-                    }
+            if (translation?.IsMultiLine == true) {
+                if (m_sections[currentSection].ContainsKey(translation?.TranslationName)) {
+                    m_sections[currentSection][translation?.TranslationName] = $"{m_sections[currentSection][translation?.TranslationName]}\n{translation?.Contents}";
                 } else {
                     m_sections[currentSection].Add(translation?.TranslationName, translation?.Contents);
                 }
+            } else {
+                // Detect special markers
+                if (currentSection == string.Empty && translation?.TranslationName.Equals(LangNameTag) == true) {
+                    LangIdentity = translation?.Contents;
+                    return; // We don't need to continue adding this information to the list
+                } else if (currentSection == string.Empty && translation?.TranslationName.Equals(LangDescriptionTag) == true) {
+                    LangDescription = translation?.Contents;
+                    return; // We don't need to continue adding this information to the list
+                }
+
+                m_sections[currentSection].Add(translation?.TranslationName, translation?.Contents);
+            }
 #pragma warning restore CS8604 // Possible null reference argument.
-            });
         }
 
         /// <summary>
@@ -102,7 +187,7 @@ namespace RustMyAdmin.Backend.Parsers {
         /// <param name="sectionName">An out param containing the name of the string or <code >string.Empty</code> if no match was found.</param>
         /// <returns></returns>
         private bool IsLineSection(ref string line, out string sectionName) {
-            var sectionRegex = new Regex(@"\[[A-z0-9-_ ]\]");
+            var sectionRegex = new Regex(@"\[[A-z0-9-_ ]+\]");
 
             var matches = sectionRegex.IsMatch(line);
             if (matches) {
@@ -137,9 +222,22 @@ namespace RustMyAdmin.Backend.Parsers {
                 isMultiLineComponent = true;
                 translationName = translationName.Substring(0, translationName.Length - 2);
             }
-            translationContents = line.Substring(indexOfFirstEquals + 1);
+            translationContents = line.Substring(indexOfFirstEquals + 1).Trim().Trim('"');
 
             return (isMultiLineComponent, translationName, translationContents);
+        }
+
+        /// <summary>
+        /// Replaces certain special character strings with actual characters.
+        /// </summary>
+        /// <param name="translation">The translation content</param>
+        /// <returns>A new string with the replaced values. The translation param is not touched.</returns>
+        private string ReplaceSpecialCharsInTranslation(ref string translation) {
+            return translation.Replace(@"\r", string.Empty)
+                              .Replace(@"\n", "\n")
+                              .Replace(@"\t", "\t")
+                              .Replace("\\\"", "\"")
+                              .Replace(@"\'", "\'"); // Maybe add more in the future
         }
 
     }

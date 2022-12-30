@@ -1,0 +1,24 @@
+﻿##==============================================================##
+##						 de_DE - Deutsch						##
+##################################################################
+##	Dies ist die Sprachdatei für die deutsche Übersetzung von	##
+##	RustMyAdmin.												##
+##	Diese Datei ist in einem Pseudo-INI-Format geschrieben und  ##
+##	unterstützt unterschiedliche String-Typen, wie ein- und		##
+##	mehrzeilige Strings.										##
+##	Diese Datei ist sich selbst bekannt und unterstützt			##
+##	Variablen.													##
+##																##
+##	             Geschrieben von Simon Cahill					##
+##################################################################
+
+# "Global" parameters
+lang_identifier						= "de_DE"
+lang_description					= "Deutsche Sprache (Deutschland)"
+lang_version						= "0.0.1"
+
+[home_page]
+page_title							= "Startseite"
+welcome_text[]						= "Willkommen bei RustMyAdmin!"
+welcome_text[]						= "Dieses einfache Tool ermöglicht dir kinderleicht dein(e) Rust-Server zu administrieren!\n"
+welcome_text[]						= "Wenn du für die \"Basic\"-Variante bezahlt hast, hat man dich abgezockt!"

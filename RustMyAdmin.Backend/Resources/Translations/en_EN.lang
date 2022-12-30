@@ -1,0 +1,23 @@
+﻿##==============================================================##
+##						 en_EN - English						##
+##################################################################
+##	This is the language file for the English translations for	##
+##	RustMyAdmin.												##
+##	This file is built in a pseudo-ini format and can contain	##
+##	a multitude of different string types, such as single- and	##
+##	multi-line strings.											##
+##	This file is "self-aware" and supports variables.			##
+##																##
+##	               Written by Simon Cahill.						##
+##################################################################
+
+# "Global" parameters
+lang_identifier						= "en_EN"
+lang_description					= "Standard English (not American)"
+lang_version						= "0.0.1"
+
+[home_page]
+page_title							= "Home"
+welcome_text[]						= "Welcome to RustMyAdmin!"
+welcome_text[]						= "The easy-to-use Rust server administration tool.\n"
+welcome_text[]						= "If you paid for the basic version of this software, you were ripped off!"

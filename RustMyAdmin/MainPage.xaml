@@ -8,7 +8,5 @@
             Text="Welcome to RustMyAdmin! This application will help you monitor your Rust server(s)!"
             VerticalOptions="Center" 
             HorizontalOptions="Center" />
-
-        <Button Text="Click me!" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand" Clicked="OnButtonClicked" />
     </VerticalStackLayout>
 </ContentPage>
