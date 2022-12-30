@@ -4,5 +4,6 @@
              x:Class="RustMyAdmin.About"
              Title="About">
     <VerticalStackLayout>
+        <Button Text="Hallo, Pascal!" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand" Clicked="Button_Clicked" />
     </VerticalStackLayout>
 </ContentPage>
