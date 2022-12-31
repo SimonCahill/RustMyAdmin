@@ -18,11 +18,13 @@ namespace RustMyAdmin.Backend.Parsers {
 
         const string LangNameTag        = "lang_identifier";
         const string LangDescriptionTag = "lang_description";
+        const string LangVersionTag     = "lang_version";
 
         public FileInfo? LangFile { get; private set; }
 
         public string LangIdentity { get; private set; }
         public string LangDescription { get; private set; }
+        public string LangVersion { get; private set; }
 
         internal static LanguageParser? FallbackInstance { get; private set; } = null;
 
@@ -130,11 +132,16 @@ namespace RustMyAdmin.Backend.Parsers {
 
             // Yes, this will create a closure, but it's more more legible than a huge effin foreach
             var currentSection = string.Empty; // By default, we're in a global section
-            m_sections.Add(currentSection, new Dictionary<string, string>());
+            var currentDict = new Dictionary<string, string>();
 
             foreach (var line in lines) {
-                HandleSingleLineInTranslationFile(line, ref currentSection);
+                HandleSingleLineInTranslationFile(line, ref currentSection, ref currentDict);
             }
+
+            // The last element cannot be added by the HandleSingleLineInTranslationFile method, so we have to manually add
+            // the dictionary here.
+            // The variables are passed as references, so it's all good
+            m_sections.TryAdd(currentSection, currentDict);
 
             return !string.IsNullOrEmpty(LangIdentity) && !string.IsNullOrEmpty(LangDescription) && m_sections.Count > 0;
         }
@@ -143,15 +150,17 @@ namespace RustMyAdmin.Backend.Parsers {
         /// Handles a single line from a translation file.
         /// </summary>
         /// <param name="line">The line to parse</param>
-        private void HandleSingleLineInTranslationFile(string line, ref string currentSection) {
+        private void HandleSingleLineInTranslationFile(string line, ref string currentSection, ref Dictionary<string, string> currentDict) {
             // First trim line
             line = line.Trim();
 
             // Now remove any comments
             if (string.IsNullOrEmpty(line) || line[0] == '#') { return; } // skip
 
-            if (IsLineSection(ref line, out currentSection)) {
-                m_sections.Add(currentSection, new Dictionary<string, string>());
+            if (IsLineSection(ref line, out var newSection)) {
+                m_sections.Add(currentSection, currentDict);
+                currentSection = newSection;
+                currentDict = new Dictionary<string, string>();
                 return;
             }
 
@@ -159,23 +168,22 @@ namespace RustMyAdmin.Backend.Parsers {
             if (translation == null) { return; } // not a valid translation string
 
 #pragma warning disable CS8604 // Possible null reference argument.
-            if (translation?.IsMultiLine == true) {
-                if (m_sections[currentSection].ContainsKey(translation?.TranslationName)) {
-                    m_sections[currentSection][translation?.TranslationName] = $"{m_sections[currentSection][translation?.TranslationName]}\n{translation?.Contents}";
-                } else {
-                    m_sections[currentSection].Add(translation?.TranslationName, translation?.Contents);
-                }
+            if (translation?.IsMultiLine == true && currentDict.ContainsKey(translation?.TranslationName)) {
+                currentDict[translation?.TranslationName] += $"\n{ translation?.Contents }";
             } else {
-                // Detect special markers
-                if (currentSection == string.Empty && translation?.TranslationName.Equals(LangNameTag) == true) {
-                    LangIdentity = translation?.Contents;
-                    return; // We don't need to continue adding this information to the list
-                } else if (currentSection == string.Empty && translation?.TranslationName.Equals(LangDescriptionTag) == true) {
-                    LangDescription = translation?.Contents;
-                    return; // We don't need to continue adding this information to the list
+                // First check for special values, such as lang_identifier, lang_description, and lang_version
+                if (translation?.TranslationName.Equals(LangNameTag, StringComparison.InvariantCultureIgnoreCase) == true) {
+                    LangIdentity = translation?.Contents ?? string.Empty;
+                    return;
+                } else if (translation?.TranslationName.Equals(LangDescriptionTag, StringComparison.InvariantCultureIgnoreCase) == true) {
+                    LangDescription = translation?.Contents ?? string.Empty;
+                    return;
+                } else if (translation?.TranslationName.Equals(LangVersionTag, StringComparison.InvariantCultureIgnoreCase) == true) {
+                    LangVersion = translation?.Contents ?? string.Empty;
+                    return;
                 }
 
-                m_sections[currentSection].Add(translation?.TranslationName, translation?.Contents);
+                currentDict.TryAdd(translation?.TranslationName, translation?.Contents);
             }
 #pragma warning restore CS8604 // Possible null reference argument.
         }
