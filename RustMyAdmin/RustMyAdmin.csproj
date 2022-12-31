@@ -51,6 +51,7 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios15.4|AnyCPU'">
 	  <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+	  <CreatePackage>false</CreatePackage>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-ios15.4|AnyCPU'">
 	  <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
@@ -94,6 +95,9 @@
 	  <MauiXaml Update="About.xaml">
 	    <SubType></SubType>
 	  </MauiXaml>
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\RustMyAdmin.Backend\RustMyAdmin.Backend.csproj" />
 	</ItemGroup>
 	<ProjectExtensions>
 	  <MonoDevelop>
