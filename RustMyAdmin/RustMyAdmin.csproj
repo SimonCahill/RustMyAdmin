@@ -40,6 +40,7 @@
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
 	  <!--<RunCodeAnalysis>true</RunCodeAnalysis>-->
 	  <WarningLevel>4</WarningLevel>
+	  <!--<RunCodeAnalysis>true</RunCodeAnalysis>-->
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-maccatalyst|AnyCPU'">
 	  <CreatePackage>false</CreatePackage>

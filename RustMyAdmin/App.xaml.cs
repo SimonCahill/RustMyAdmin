@@ -1,19 +1,13 @@
 ﻿namespace RustMyAdmin;
 
+using RustMyAdmin.Backend.Parsers;
+
 public partial class App : Application {
 
-	const string TranslationDirPath = "Resources/Translations/";
-	const string LanguageFileExt	= ".lang";
+    public App() {
+        InitializeComponent();
 
-	internal List<FileInfo> LanguageFiles { get; private set; } = default;
-
-	public App() {
-		InitializeComponent();
-
-		MainPage = new AppShell();
-	}
-
-
-	
+        MainPage = new AppShell();
+    }
 }
 
