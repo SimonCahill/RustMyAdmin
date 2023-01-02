@@ -100,6 +100,9 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\RustMyAdmin.Backend\RustMyAdmin.Backend.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+	  <None Include="..\.editorconfig" />
+	</ItemGroup>
 	<ProjectExtensions>
 	  <MonoDevelop>
 	    <Properties>
