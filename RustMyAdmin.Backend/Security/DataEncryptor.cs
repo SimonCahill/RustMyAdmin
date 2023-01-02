@@ -70,6 +70,21 @@ namespace RustMyAdmin.Backend.Security {
             return NetworkInterface.GetAllNetworkInterfaces().Select(x => x.GetPhysicalAddress()).ToArray();
         }
 
-    }
+		public Task<byte[]> EncryptAsync(string unencrpted) {
+			throw new NotImplementedException();
+		}
+
+		public Task<byte[]> EncryptBytesAsync(byte[] unencrypted) {
+			throw new NotImplementedException();
+		}
+
+		public Task<string> DecryptAsync(byte[] encrypted) {
+			throw new NotImplementedException();
+		}
+
+		public Task<byte[]> DecryptBytesAsync(byte[] encrypted) {
+			throw new NotImplementedException();
+		}
+	}
 }
 
