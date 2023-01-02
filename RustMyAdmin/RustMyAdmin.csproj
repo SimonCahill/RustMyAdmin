@@ -91,6 +91,7 @@
 
 	<ItemGroup>
 	  <None Remove="RconSharp" />
+	  <None Remove="ViewModels\" />
 	</ItemGroup>
 	<ItemGroup>
 	  <MauiXaml Update="About.xaml">
@@ -102,6 +103,9 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <None Include="..\.editorconfig" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="ViewModels\" />
 	</ItemGroup>
 	<ProjectExtensions>
 	  <MonoDevelop>
