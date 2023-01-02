@@ -12,6 +12,8 @@
     <None Remove="Security\" />
     <None Remove="ListShuffle" />
     <None Remove="Config\" />
+    <None Remove="Resources\Config\" />
+    <None Remove="Resources\Config\DefaultConfig.json" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Resources\Translations\de_DE.lang">
@@ -30,5 +32,9 @@
   <ItemGroup>
     <Folder Include="Security\" />
     <Folder Include="Config\" />
+    <Folder Include="Resources\Config\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\Config\DefaultConfig.json" />
   </ItemGroup>
 </Project>
