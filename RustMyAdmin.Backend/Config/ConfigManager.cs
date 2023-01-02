@@ -9,6 +9,12 @@ namespace RustMyAdmin.Backend.Config {
 
     public class ConfigManager {
 
+        private static ConfigManager? _instance = null;
+
+        public static ConfigManager Instance {
+            get => _instance ?? (_instance = new ConfigManager());
+        }
+
         public Dictionary<string, object> Configurations { get; private set; }
 
         private FileInfo m_configFile;
