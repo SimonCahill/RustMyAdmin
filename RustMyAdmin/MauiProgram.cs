@@ -2,9 +2,13 @@
 
 namespace RustMyAdmin;
 
+using RustMyAdmin.Backend.Config;
+
 public static class MauiProgram {
 
 	public static MauiApp CreateMauiApp() {
+		Task.Run(LoadConfigs);
+
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
@@ -20,6 +24,10 @@ public static class MauiProgram {
 		return builder.Build();
 	}
 
+	public static async Task LoadConfigs() {
+		var configMan = ConfigManager.Instance;
+		await configMan.LoadConfigAsync();
+	}
 
 }
 
