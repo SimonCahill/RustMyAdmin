@@ -16,9 +16,23 @@ namespace RustMyAdmin.Backend.Parsers {
     /// </summary>
     public class LanguageParser {
 
-        const string LangNameTag        = "lang_identifier";
+        public static List<LanguageParser> Languages { get; private set; } = new List<LanguageParser>();
+
+        public static LanguageParser GetLanguageById(string langId) {
+            if (string.IsNullOrEmpty(langId)) { throw new ArgumentNullException(nameof(langId), "The language ID must not be null or empty!"); }
+
+            var lang = Languages.FirstOrDefault(x => x.LangIdentity == langId);
+
+            if (lang == default) {
+                throw new InvalidOperationException($"The language with the ID { langId } could not be found!");
+            }
+
+            return lang;
+        }
+
+        const string LangNameTag = "lang_identifier";
         const string LangDescriptionTag = "lang_description";
-        const string LangVersionTag     = "lang_version";
+        const string LangVersionTag = "lang_version";
 
         public FileInfo? LangFile { get; private set; }
 
@@ -39,7 +53,7 @@ namespace RustMyAdmin.Backend.Parsers {
         /// This is the recommended constructor to use.
         /// </remarks>
         /// <param name="langFile">The path to the lang file</param>
-        public LanguageParser(FileInfo langFile): this() {
+        public LanguageParser(FileInfo langFile) : this() {
             LangFile = langFile;
         }
 
@@ -50,7 +64,7 @@ namespace RustMyAdmin.Backend.Parsers {
         /// This constructor will directly attempt to parse the input!
         /// </remarks>
         /// <param name="langFileContents">The contents of the language file.</param>
-        public LanguageParser(ref string langFileContents): this() {
+        public LanguageParser(ref string langFileContents) : this() {
             LangFile = null;
             ParseLangFile(ref langFileContents);
         }
@@ -63,7 +77,13 @@ namespace RustMyAdmin.Backend.Parsers {
             }
 
             var fileContents = File.ReadAllText(LangFile.FullName);
-            return ParseLangFile(ref fileContents);
+            var success = ParseLangFile(ref fileContents);
+
+            if (success) {
+                Languages.Add(this);
+            }
+
+            return success;
         }
 
         /// <summary>
@@ -123,7 +143,7 @@ namespace RustMyAdmin.Backend.Parsers {
         /// <returns>true if the file was parsed correctly. False otherwise.</returns>
         /// <exception cref="ArgumentException">If an invalid argument was passed.</exception>
         private bool ParseLangFile(ref string langFileContents) {
-            if (String.IsNullOrEmpty(langFileContents)) { throw new ArgumentException($"{ nameof(langFileContents) } must not be empty!"); }
+            if (String.IsNullOrEmpty(langFileContents)) { throw new ArgumentException($"{nameof(langFileContents)} must not be empty!"); }
 
             // Ensure the m_sections dictionary is empty
             m_sections.Clear();
@@ -169,7 +189,7 @@ namespace RustMyAdmin.Backend.Parsers {
 
 #pragma warning disable CS8604 // Possible null reference argument.
             if (translation?.IsMultiLine == true && currentDict.ContainsKey(translation?.TranslationName)) {
-                currentDict[translation?.TranslationName] += $"\n{ translation?.Contents }";
+                currentDict[translation?.TranslationName] += $"\n{translation?.Contents}";
             } else {
                 // First check for special values, such as lang_identifier, lang_description, and lang_version
                 if (translation?.TranslationName.Equals(LangNameTag, StringComparison.InvariantCultureIgnoreCase) == true) {

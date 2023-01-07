@@ -19,7 +19,7 @@ namespace RustMyAdmin.Backend.Config {
 
         private FileInfo m_configFile;
 
-        readonly Regex MultiConfRegex = new Regex(@"([A-z_]\.?)+");
+        readonly Regex MultiConfRegex = new Regex(@"^([A-z_]+\.)([A-z_]+\.?)+$");
 
         public ConfigManager(FileInfo? configFile = null) {
             Configurations = new Dictionary<string, object>();
@@ -27,15 +27,28 @@ namespace RustMyAdmin.Backend.Config {
         }
 
         public async Task LoadConfigAsync() {
+            if (!m_configFile.Exists || m_configFile.Length <= 10) {
+                await SaveConfigAsync(true);
+            }
+
             using (var fReader = m_configFile.OpenText()) {
                 var fContents = await fReader.ReadToEndAsync();
                 Configurations = JsonConvert.DeserializeObject<Dictionary<string, object>>(fContents) ?? new Dictionary<string, object>();
             }
         }
 
-        public async Task SaveConfigAsync() {
+        public async Task SaveConfigAsync(bool writeDefault = false) {
+            if (m_configFile.Directory?.Exists == false) {
+                m_configFile.Directory?.Create();
+            }
+
             using (var fWriter = new StreamWriter(m_configFile.OpenWrite())) {
-                var jsonString = JsonConvert.SerializeObject(Configurations);
+                string jsonString = string.Empty;
+                if (writeDefault) {
+                    LoadDefaults();
+                }
+                jsonString = JsonConvert.SerializeObject(Configurations);
+
                 await fWriter.WriteAsync(jsonString);
             }
         }
@@ -140,6 +153,16 @@ namespace RustMyAdmin.Backend.Config {
             var indexOfFirstPeriod = config.IndexOf('.');
             next = config.Substring(indexOfFirstPeriod + 1);
             return config.Substring(0, indexOfFirstPeriod - 1);
+        }
+
+        /// <summary>
+        /// Loads a default set of configurations
+        /// </summary>
+        private void LoadDefaults() {
+            Configurations = new Dictionary<string, object> {
+                { "Language", "en_EN" }
+                // TODO: Add more configs as needed here
+            };
         }
 
     }

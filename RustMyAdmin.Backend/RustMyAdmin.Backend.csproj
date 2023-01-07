@@ -14,16 +14,9 @@
     <None Remove="Config\" />
     <None Remove="Resources\Config\" />
     <None Remove="Resources\Config\DefaultConfig.json" />
+    <None Remove="Resources\Translations\de_DE.lang" />
+    <None Remove="Resources\Translations\en_EN.lang" />
   </ItemGroup>
-  <ItemGroup>
-    <None Update="Resources\Translations\de_DE.lang">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Resources\Translations\en_EN.lang">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
@@ -36,5 +29,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Config\DefaultConfig.json" />
+    <Content Include="Resources\Translations\de_DE.lang">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Translations\en_EN.lang">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>
