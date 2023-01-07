@@ -21,3 +21,11 @@ page_title                          = "Home"
 welcome_text[]                      = "Welcome to RustMyAdmin!"
 welcome_text[]                      = "The easy-to-use Rust server administration tool.\n"
 welcome_text[]                      = "If you paid for the basic version of this software, you were ripped off!"
+
+[about_page]
+page_title                          = "About"
+about_text[]                        = "RustMyAdmin (basic) is THE free and open source Rust server administration tool"
+about_text[]                        = "Providing you with the ability to manage multiple Rust servers (paid version)"
+about_text[]                        = "on all major operating systems, including Android and iOS!"
+about_text[]                        = "RustMyAdmin provides a powerful way of managing your server, while keeping it"
+about_text[]                        = "easy as 1-2-3."
