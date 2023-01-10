@@ -33,6 +33,9 @@ namespace RustMyAdmin.Backend.Parsers {
         const string LangNameTag = "lang_identifier";
         const string LangDescriptionTag = "lang_description";
         const string LangVersionTag = "lang_version";
+        const string VariableDetectionRegexPattern = @"(\$\{[A-z_][A-z_]+\})";
+
+        readonly Regex VariableDetectionRegex = new Regex(VariableDetectionRegexPattern, RegexOptions.Compiled);
 
         public FileInfo? LangFile { get; private set; }
 
@@ -43,6 +46,20 @@ namespace RustMyAdmin.Backend.Parsers {
         internal static LanguageParser? FallbackInstance { get; private set; } = null;
 
         private Dictionary<string, Dictionary<string, string>> m_sections;
+
+        /// <summary>
+        /// Dictionary containing a key-value map with variable name and expansion functions.
+        /// </summary>
+        private Dictionary<string, Func<string>> m_variableExpanders = new Dictionary<string, Func<string>> {
+            { "year",       DateTime.Now.Year.ToString },
+            { "month",      DateTime.Now.Month.ToString },
+            { "day",        DateTime.Now.Day.ToString },
+            { "HH", () =>   DateTime.Now.Hour.ToString("HH") },
+            { "hh", () =>   DateTime.Now.Hour.ToString("hh") },
+            { "tt", () =>   DateTime.Now.ToString("tt") },
+            { "mm",         DateTime.Now.Minute.ToString },
+            // add more as seen fit
+        };
 
         private LanguageParser() => m_sections = new Dictionary<string, Dictionary<string, string>>();
 
@@ -133,7 +150,79 @@ namespace RustMyAdmin.Backend.Parsers {
                     return FallbackInstance.GetTranslation(section, name, @default);
                 }
                 throw new LanguageParserException(section, name, "Could not find the requested translation string in the selected section!");
-            } else { return translation; }
+            } else {
+                return HandleVariableInTranslation(ref translation);
+            }
+        }
+
+        /// <summary>
+        /// Handles the text replacement of variables in the translation text.
+        /// </summary>
+        /// <param name="translation">A reference to the current translation string</param>
+        /// <returns>The translation string with all variables replaced.</returns>
+        private string HandleVariableInTranslation(ref string translation) {
+            MatchCollection matches;
+            if (!TranslationContainsVariable(ref translation, out matches)) { return translation; }
+
+            foreach (Match match in matches) {
+                translation = translation.Replace(match.Value, GetReplacementForVariable(match.Value));
+            }
+
+            return translation;
+        }
+
+        /// <summary>
+        /// Determines whether or not a translation string contains a variable or not.
+        /// </summary>
+        /// <param name="translation">The translation to check for variables.</param>
+        /// <returns><code>true</code> if the translation string contains a variable.</returns>
+        private bool TranslationContainsVariable(ref string translation, out MatchCollection matches) {
+            return (matches = VariableDetectionRegex.Matches(translation)).Count > 0;
+        }
+
+        /// <summary>
+        /// Gets a replacement string for the variable.
+        /// </summary>
+        /// <param name="variable">The variable to replace.</param>
+        /// <returns>The string value the variable represents, or string.Empty.</returns>
+        private string GetReplacementForVariable(string variable) {
+            // Get the actual name of the variable first
+            var varName = GetVariableName(ref variable);
+
+            if (m_variableExpanders.TryGetValue(varName, out var func)) {
+                return func();
+            }
+
+            switch (varName) {
+                case LangNameTag:
+                    return LangIdentity ?? string.Empty;
+                case LangDescriptionTag:
+                    return LangDescription ?? string.Empty;
+                case LangVersionTag:
+                    return LangVersion ?? string.Empty;
+                default:
+                    break;
+            }
+
+            foreach (var section in m_sections) {
+                if (section.Value.TryGetValue(variable, out var replacement)) {
+                    return replacement;
+                }
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Gets the name of the variable contained within the `${variable_name}` structure
+        /// </summary>
+        /// <param name="variable">The variable string</param>
+        /// <returns>The name of the variable.</returns>
+        private string GetVariableName(ref string variable) {
+            var indexOfFirstBracket = variable.IndexOf('{') + 1;
+            var indexOfLastBracket = variable.LastIndexOf('}') - 2;
+
+            return variable.Substring(indexOfFirstBracket, indexOfLastBracket); 
         }
 
         /// <summary>
