@@ -97,6 +97,14 @@ namespace RustMyAdmin.Backend.Tests.Parsers {
             Assert.IsTrue(text.Count(char.IsWhiteSpace) > 0);
         }
 
+        [TestMethod]
+        public void TestVariableExpansion() {
+            var langParser = new LanguageParser(ref TestTranslation);
+
+            var copyrightText = langParser.GetTranslation("about_page", "copyright");
+            Assert.IsTrue(copyrightText.Contains(DateTime.Now.Year.ToString()));
+        }
+
         internal FileInfo WriteTempFile() {
             switch (Environment.OSVersion.Platform) {
                 case PlatformID.Unix:
