@@ -3,11 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:RustMyAdmin.ViewModels"
              x:Class="RustMyAdmin.About"
+             xmlns:images="clr-namespace:RustMyAdmin.Resources.Images"
              Title="About" BindingContext="{DynamicResource m_viewModel}" >
     <ContentPage.Resources >
         <vm:AboutViewModel x:DataType="vm:AboutViewModel" x:Name="m_viewModel" x:Key="m_viewModel" />
     </ContentPage.Resources>
-    <VerticalStackLayout>
+    <VerticalStackLayout Padding="10" >
+        <Image Source="rustmyadmin_full_transparent.png" VerticalOptions="CenterAndExpand" HorizontalOptions="Center" MaximumWidthRequest="512" Margin="10,50" />
         <Label Text="{Binding AboutText}" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand" />
+        <Label Text="{Binding Copyright}" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand" />
     </VerticalStackLayout>
 </ContentPage>
